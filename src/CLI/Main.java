@@ -19,11 +19,13 @@ import java.util.Scanner;
 
 public class Main {
 
+    //creating an object from MyGymManager
     private static MyGymManager admin = new Manager.MyGymManager();
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
+        //Print the introduction
         System.out.println(
                 "|**********************************************************************************************|\n" +
                 "|-----------------------           Welcome to the Gym Manager         -------------------------|\n" +
@@ -31,6 +33,7 @@ public class Main {
                 "|**********************************************************************************************|"
         );
 
+        //When the CLI runs, open the GUI in background.
         new Thread() {
             @Override
             public void run(){
@@ -39,36 +42,37 @@ public class Main {
             }
         }.start();
 
-
+        //displaying menu while taking a correct input
         displayMenu();
         while (!sc.hasNextInt()){
             System.out.println("Please enter a given option.");
             System.out.print("\tSelect one given option: ");
             sc.next();
         }
-        int selection = sc.nextInt();
+        String selection = sc.next();
 
         do {
-            if (selection == 1) {
+            if (selection.equals("1")) {
                 addMember();
-            } else if (selection == 2) {
+            } else if (selection.equals("2")) {
                 deleteMember();
-            } else if (selection == 3) {
+            } else if (selection.equals("3")) {
                 admin.printMembers();
-            } else if (selection == 4) {
+            } else if (selection.equals("4")) {
                 admin.sortMembers();
-            } else if (selection == 5) {
+            } else if (selection.equals("5")) {
                 saveData();
-            } else if (selection == 6) {
+            } else if (selection.equals("6")) {
                 System.out.println("Opening GUI....");
                 Platform.runLater(GUI::stageShow);
 //                GUI.stageShow();
             } else {
+                //if user input is non of the options given,
                 System.out.println("Please enter the given option from 1-6 or -1 to exit.");
             }
             displayMenu();
-            selection = sc.nextInt();
-        } while (selection !=-1);
+            selection = sc.next();
+        } while (!selection.equals("-1"));
         System.out.println("------------------------------Have a nice day ! Bye-----------------------------\n");
     }
 
@@ -77,7 +81,9 @@ public class Main {
         String membershipID;
         String name;
         String membershipDate;
+        boolean flag;
         do {
+            flag = false;
             System.out.print("Membership ID : ");
             membershipID = sc.nextLine().trim();
             System.out.print("Name : ");
@@ -85,16 +91,24 @@ public class Main {
             System.out.print("Membership CLI.Date : ");
             //take user input for membership date using CLI.Date.dateValidate method
             membershipDate = Date.dateValidate();
-            if (name.equals("") || membershipID.equals("")) {
-                System.out.println("MembershipID , Name, school name can not be empty !");
+            for (DefaultMember mem : admin.getMembersArray()){
+                if (mem.getMembershipNumber().equals(membershipID)){
+                    System.out.println("Membership ID cannot repeat.");
+                    flag = true;
+                }
             }
-        } while (membershipDate.equals("error") || name.equals("") || membershipID.equals(""));
+            if (name.equals("") || membershipID.equals("")) {
+                System.out.println("MembershipID , Name can not be empty !");
+                flag = true;
+            }
+        } while (membershipDate.equals("error") || flag);
 
         //change data type membershipDate to java.util.LocalDate and assign to a new variable membershipValidDate
         LocalDate membershipValidDate = null;
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd", Locale.ENGLISH);
-            membershipValidDate = LocalDate.parse(membershipDate, formatter);
+            membershipValidDate = LocalDate.parse(
+                    membershipDate, DateTimeFormatter.ofPattern("yyyy MM dd", Locale.ENGLISH)
+            );
         } catch (DateTimeParseException e){
             System.out.println("Enter a valid date format as given. YYYY MM DD (with correct blanks and digits).");
         }
@@ -114,17 +128,36 @@ public class Main {
             memberType = sc.next();
         }
 
+        //Input School Name
         if (memberType.equals("2")) {
             System.out.print("Enter school of the student : ");
             String school = sc.nextLine();
             school = sc.nextLine();
             StudentMember memberObj = new StudentMember(membershipID, name, membershipValidDate, school);
             admin.addNewMember(memberObj);
+
         } else if (memberType.equals("3")) {
+
+            //Input Age
             System.out.print("Enter age of the member : ");
+            while (!sc.hasNextInt()){
+                System.out.println("Please enter an integer.");
+                sc.next();
+            }
             int age = sc.nextInt();
             Over60Member memberObj = new Over60Member(membershipID, name, membershipValidDate, age);
-            admin.addNewMember(memberObj);
+            do {
+                while (!sc.hasNextInt()){
+                    System.out.println("Please enter an integer.");
+                    sc.next();
+                }
+                age = sc.nextInt();
+            } while (!memberObj.setAge(age));
+            memberObj.setAge(age);
+            if (memberObj.setAge(age)) {
+                admin.addNewMember(memberObj);
+            }
+
         } else {
             DefaultMember memberObj = new DefaultMember(membershipID, name, membershipValidDate);
             admin.addNewMember(memberObj);
@@ -132,6 +165,7 @@ public class Main {
         System.out.println("\nMember Added Successfully.\n");
     }
 
+    //Taking an input for which user to be delete - passing it to deleteMember method
     private static void deleteMember(){
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter the membership ID of the member : ");
@@ -139,6 +173,7 @@ public class Main {
         admin.deleteMember(deleteMemID);
     }
 
+    //Taking an input for the name of the file to be saved - passing it to writeFile method
     private static void saveData(){
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter the name of the file you want to store :");

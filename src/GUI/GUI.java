@@ -26,6 +26,7 @@ import static CLI.Main.getMembers;
 public class GUI extends Application {
     private static Stage stage;
     private static TableView table;
+    private static ComboBox comboBox;
     private static String searchTerm;
 
     public static void main(){
@@ -41,30 +42,32 @@ public class GUI extends Application {
         TextField searchBar = Controllers.createTxtField(301, 32 , 462, 117);
         ObservableList<String> selections = FXCollections.observableArrayList(
                 "Membership No", "Membership Name", "Membership Date");
-        ComboBox comboBox = Controllers.createComboBox(selections, 301, 32, 58, 117);
+        comboBox = Controllers.createComboBox(selections, 301, 32, 58, 117);
         comboBox.setValue("Membership Name");
         Button goBtn = Controllers.createButton("Show", 53, 32, 384, 117);
 
         goBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                //search content refresh by setting searchbar space and then set to null.
                 searchBar.setText(" ");
                 searchBar.setText("");
             }
         });
 
+        //keep track on searchbar - call updateTable function
         searchBar.textProperty().addListener((observable, oldValue, newValue) -> {
             searchTerm = newValue;
-            updateTable(comboBox);
+            updateTable();
         });
 
-        TableView table = createTable();
-        table.setPrefSize(705,379);
-        table.setLayoutY(158);
+        table = Controllers.createTable();
+        table.setPrefSize(705,400);
+        table.setLayoutY(170);
         table.setLayoutX(58);
 
         AnchorPane pane = new AnchorPane(table);
-        pane.setPrefSize(821,580);
+        pane.setPrefSize(821,670);
         pane.getChildren().addAll(
                 heading,
                 searchBar,
@@ -72,39 +75,14 @@ public class GUI extends Application {
                 goBtn
         );
 
-        Scene scene = new Scene(pane, 821, 580);
+        Scene scene = new Scene(pane, 821, 670);
         primaryStage.setTitle("My Gym Manager");
         primaryStage.setMaxWidth(821);
-        primaryStage.setMaxHeight(580);
+        primaryStage.setMaxHeight(670);
         primaryStage.setMinWidth(821);
-        primaryStage.setMinHeight(580);
+        primaryStage.setMinHeight(670);
         primaryStage.setScene(scene);
         stage = primaryStage;
-
-    }
-
-    @SuppressWarnings("unchecked")
-    private static TableView createTable() {
-
-        table = new TableView();
-
-        TableColumn<DefaultMember, String> membershipNo = new TableColumn<>("Membership No");
-        membershipNo.setCellValueFactory(new PropertyValueFactory<>("membershipNumber"));
-        membershipNo.setPrefWidth(150);
-        table.getColumns().add(membershipNo);
-
-        TableColumn<DefaultMember, String> memberName = new TableColumn<>("Membership Name");
-        memberName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        memberName.setPrefWidth(262);
-        table.getColumns().add(memberName);
-
-        TableColumn<DefaultMember, String> memberDate = new TableColumn<>("Membership Date");
-        memberDate.setCellValueFactory(new PropertyValueFactory<>("startMembershipDate"));
-        memberDate.setPrefWidth(291);
-        table.getColumns().add(memberDate);
-
-        table.getItems().addAll(getMembers());
-        return table;
 
     }
 
@@ -112,22 +90,28 @@ public class GUI extends Application {
         stage.show();
     }
 
-    private static void updateTable(ComboBox cb) {
+    private static void updateTable() {
+        /*
+        *clear all table entries
+        * Looping through each object in getMember array list
+        * if searchTerm of the user found, it will add to the table
+        * refresh the table to show the output - searchTerm matching items
+        */
         table.getItems().clear();
-        if (cb.getValue().equals("Membership No")){
+        if (comboBox.getValue().equals("Membership No")){
             for (DefaultMember member : getMembers()) {
                 if (member.getMembershipNumber().contains(searchTerm)) {
                     table.getItems().add(member);
                 }
             }
         }
-        else if (cb.getValue().equals("Membership Name")){
+        else if (comboBox.getValue().equals("Membership Name")){
             for (DefaultMember member : getMembers()) {
                 if (member.getName().toLowerCase().contains(searchTerm.toLowerCase())) {
                     table.getItems().add(member);
                 }
             }
-        } else if (cb.getValue().equals("Membership Date")){
+        } else if (comboBox.getValue().equals("Membership Date")){
             for (DefaultMember member : getMembers()) {
                 if (String.valueOf(member.getStartMembershipDate()).contains(searchTerm)) {
                     table.getItems().add(member);

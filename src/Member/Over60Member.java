@@ -15,12 +15,14 @@ public class Over60Member extends DefaultMember {
         return age;
     }
 
-    public void setAge(int age) {
+    public boolean setAge(int age) {
         if (age>=60) {
             this.age = age;
+            return true;
         } else {
             System.out.println("Please enter valid age for Over 60 member " +
                     "or change the member type.");
+            return false;
         }
     }
 }
