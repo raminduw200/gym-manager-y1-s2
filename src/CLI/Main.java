@@ -9,7 +9,7 @@ import GUI.GUI;
 
 import javafx.application.Platform;
 
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -17,12 +17,15 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
 
+import static java.lang.Integer.parseInt;
+
 public class Main {
 
     //creating an object from MyGymManager
     private static MyGymManager admin = new Manager.MyGymManager();
+    private static int membershipID;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(System.in);
 
         //Print the introduction
@@ -42,62 +45,89 @@ public class Main {
             }
         }.start();
 
+        admin.readSerializer();
+        try {
+            admin.setMemberCount(parseInt(readTemp("count.txt")));
+            membershipID = parseInt(readTemp("memID.txt"));
+        } catch (FileNotFoundException e) {
+            System.out.println("ERROR : temp file not found.");
+        }
+
         //displaying menu while taking a correct input
         displayMenu();
-        while (!sc.hasNextInt()){
-            System.out.println("Please enter a given option.");
-            System.out.print("\tSelect one given option: ");
-            sc.next();
-        }
+//        while (!sc.hasNextInt()){
+//            System.out.println("Please enter a given option.");
+//            System.out.print("\tSelect one given option: ");
+//            sc.next();
+//        }
         String selection = sc.next();
 
         do {
-            if (selection.equals("1")) {
-                addMember();
-            } else if (selection.equals("2")) {
-                deleteMember();
-            } else if (selection.equals("3")) {
-                admin.printMembers();
-            } else if (selection.equals("4")) {
-                admin.sortMembers();
-            } else if (selection.equals("5")) {
-                saveData();
-            } else if (selection.equals("6")) {
-                System.out.println("Opening GUI....");
-                Platform.runLater(GUI::stageShow);
+            switch (selection) {
+                case "1":
+                    addMember();
+                    break;
+                case "2":
+                    deleteMember();
+                    break;
+                case "3":
+                    admin.printMembers();
+                    break;
+                case "4":
+                    admin.sortMembers();
+                    break;
+                case "5":
+                    saveData();
+                    break;
+                case "6":
+                    System.out.println("Opening GUI....");
+                    Platform.runLater(GUI::stageShow);
 //                GUI.stageShow();
-            } else {
-                //if user input is non of the options given,
-                System.out.println("Please enter the given option from 1-6 or -1 to exit.");
+                    break;
+                default:
+                    //if user input is non of the options given,
+                    System.out.println("Please enter the given option from 1-6 or -1 to exit.");
+                    break;
             }
             displayMenu();
             selection = sc.next();
         } while (!selection.equals("-1"));
+
+        admin.writeSerializer();
+        try {
+            writeTemp("count.txt", String.valueOf(admin.getMemberCount()));
+        } catch (IOException e) {
+            System.out.println(
+                    "ERROR : Main - writeTemp\n" +
+                            "count.txt file not found."
+            );
+        }
+        writeTemp("memID.txt",String.valueOf(membershipID));
         System.out.println("------------------------------Have a nice day ! Bye-----------------------------\n");
+
     }
 
-    private static void addMember(){
+    private static void addMember() throws IOException {
         Scanner sc = new Scanner(System.in);
-        String membershipID;
         String name;
         String membershipDate;
         boolean flag;
         do {
             flag = false;
-            System.out.print("Membership ID : ");
-            membershipID = sc.nextLine().trim();
-            System.out.print("Name : ");
+            System.out.printf("%46s","Membership ID : ");
+            System.out.println(String.format("%04d",membershipID));
+            System.out.printf("%46s","Name : ");
             name = sc.nextLine().trim();
-            System.out.print("Membership CLI.Date : ");
+            System.out.printf("%46s","Membership Date : (YYYY MM DD) integers only: ");
             //take user input for membership date using CLI.Date.dateValidate method
             membershipDate = Date.dateValidate();
-            for (DefaultMember mem : admin.getMembersArray()){
-                if (mem.getMembershipNumber().equals(membershipID)){
-                    System.out.println("Membership ID cannot repeat.");
-                    flag = true;
-                }
-            }
-            if (name.equals("") || membershipID.equals("")) {
+//            for (DefaultMember mem : admin.getMembersArray()){
+//                if (mem.getMembershipNumber().equals(membershipID)){
+//                    System.out.println("Membership ID cannot repeat.");
+//                    flag = true;
+//                }
+//            }
+            if (name.equals("")){
                 System.out.println("MembershipID , Name can not be empty !");
                 flag = true;
             }
@@ -133,19 +163,15 @@ public class Main {
             System.out.print("Enter school of the student : ");
             String school = sc.nextLine();
             school = sc.nextLine();
-            StudentMember memberObj = new StudentMember(membershipID, name, membershipValidDate, school);
+            StudentMember memberObj = new StudentMember(String.valueOf(String.format("%04d",membershipID)), name, membershipValidDate, school);
             admin.addNewMember(memberObj);
 
         } else if (memberType.equals("3")) {
 
             //Input Age
+            int age;
+            Over60Member memberObj = new Over60Member(String.valueOf(String.format("%04d",membershipID)), name, membershipValidDate, 60);
             System.out.print("Enter age of the member : ");
-            while (!sc.hasNextInt()){
-                System.out.println("Please enter an integer.");
-                sc.next();
-            }
-            int age = sc.nextInt();
-            Over60Member memberObj = new Over60Member(membershipID, name, membershipValidDate, age);
             do {
                 while (!sc.hasNextInt()){
                     System.out.println("Please enter an integer.");
@@ -153,15 +179,18 @@ public class Main {
                 }
                 age = sc.nextInt();
             } while (!memberObj.setAge(age));
+
             memberObj.setAge(age);
             if (memberObj.setAge(age)) {
                 admin.addNewMember(memberObj);
             }
 
         } else {
-            DefaultMember memberObj = new DefaultMember(membershipID, name, membershipValidDate);
+            DefaultMember memberObj = new DefaultMember(String.valueOf(String.format("%04d",membershipID)), name, membershipValidDate);
             admin.addNewMember(memberObj);
         }
+        membershipID++;
+        writeTemp("memID.txt",String.valueOf(membershipID));
         System.out.println("\nMember Added Successfully.\n");
     }
 
@@ -176,12 +205,16 @@ public class Main {
     //Taking an input for the name of the file to be saved - passing it to writeFile method
     private static void saveData(){
         Scanner sc = new Scanner(System.in);
-        System.out.print("Enter the name of the file you want to store :");
+        System.out.print(
+                "If you want to write in previous file enter the previous name. \n" +
+                        "Current data will append in previous file.\n" +
+                "Enter the name of the file you want to store : ");
         String fileName = sc.nextLine();
         try {
             admin.writeFile(fileName);
         } catch (IOException e) {
-            System.out.println("Input Output Error : CLI.Main - saveData");
+            System.out.println("Input Output Error : CLI.Main - saveData\n" +
+                    "file not found.");
         }
 
         System.out.println("File exported. Saved in : Output/" + fileName);
@@ -205,4 +238,33 @@ public class Main {
         );
     }
 
+    //  method to write in a text file.
+    public static void writeTemp(String fName, String tempTxt) throws IOException {
+        //  Write into a file - Character Stream
+        File txtFile = new File("Output/tempFiles/"+fName);
+        FileWriter fw = null;
+        PrintWriter pw = null;
+        try{
+            fw = new FileWriter(txtFile, false);
+            pw = new PrintWriter(fw, true);
+            pw.print(tempTxt);
+        } catch (FileNotFoundException e) {
+            System.out.println(
+                    "ERROR : Main - writeTemp\n" +
+                            "count.txt file not found."
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            fw.close();
+            pw.close();
+        }
+    }
+
+    //  method to read from a text file
+    public static String readTemp(String fName) throws FileNotFoundException {
+        File txt = new File("Output/tempFiles/"+fName);
+        Scanner sc = new Scanner(txt);
+        return sc.nextLine();
+    }
 }

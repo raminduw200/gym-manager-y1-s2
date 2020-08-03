@@ -1,25 +1,20 @@
 package GUI;
 
-import CLI.Date;
-import Manager.MyGymManager;
 import Member.DefaultMember;
 import javafx.application.Application;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 import static CLI.Main.getMembers;
 
@@ -34,19 +29,19 @@ public class GUI extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws FileNotFoundException {
         primaryStage.setTitle("My GYM Manager");
 
-        Label heading = Controllers.createLabel("My Gym Manager", 242, 30);
-        heading.setFont(new Font(40));
-        TextField searchBar = Controllers.createTxtField(301, 32 , 462, 117);
+        TextField searchBar = Controllers.createTxtField(301, 42 , 563, 130);
+        searchBar.setPromptText("Search....");
         ObservableList<String> selections = FXCollections.observableArrayList(
                 "Membership No", "Membership Name", "Membership Date");
-        comboBox = Controllers.createComboBox(selections, 301, 32, 58, 117);
+        comboBox = Controllers.createComboBox(selections, 301, 42, 65, 130);
         comboBox.setValue("Membership Name");
-        Button goBtn = Controllers.createButton("Show", 53, 32, 384, 117);
+        comboBox.setId("selections");
+        Button showBtn = Controllers.createButton("Show", 100, 38, 430, 132);
 
-        goBtn.setOnAction(new EventHandler<ActionEvent>() {
+        showBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 //search content refresh by setting searchbar space and then set to null.
@@ -62,25 +57,32 @@ public class GUI extends Application {
         });
 
         table = Controllers.createTable();
-        table.setPrefSize(705,400);
-        table.setLayoutY(170);
-        table.setLayoutX(58);
+        table.setPrefSize(800,410);
+        table.setLayoutY(200);
+        table.setLayoutX(65);
 
-        AnchorPane pane = new AnchorPane(table);
-        pane.setPrefSize(821,670);
+
+        FileInputStream imageFile = new FileInputStream("src/Images/background.jpg");
+        Image backgroundImg = new Image(imageFile);
+        ImageView backgroundView = new ImageView(backgroundImg);
+
+        AnchorPane pane = new AnchorPane();
+        pane.setPrefSize(950,720);
         pane.getChildren().addAll(
-                heading,
+                backgroundView,
+                table,
                 searchBar,
-                comboBox,
-                goBtn
+                showBtn,
+                comboBox
         );
 
-        Scene scene = new Scene(pane, 821, 670);
+        Scene scene = new Scene(pane, 950, 720);
+        scene.getStylesheets().add("GUI/Design.css");
         primaryStage.setTitle("My Gym Manager");
-        primaryStage.setMaxWidth(821);
-        primaryStage.setMaxHeight(670);
-        primaryStage.setMinWidth(821);
-        primaryStage.setMinHeight(670);
+        primaryStage.setMaxWidth(950);
+        primaryStage.setMaxHeight(720);
+        primaryStage.setMinWidth(950);
+        primaryStage.setMinHeight(720);
         primaryStage.setScene(scene);
         stage = primaryStage;
 

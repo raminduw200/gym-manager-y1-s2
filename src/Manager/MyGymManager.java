@@ -9,17 +9,17 @@ import java.util.ArrayList;
 
 public class MyGymManager implements GymManager {
 
-    private final ArrayList<DefaultMember> membersArray = new ArrayList<>();
+    private ArrayList<DefaultMember> membersArray = new ArrayList<>();
     //change maximum number that can store by change below static variable
     private static final int MAX_MEMBERS = 100;
-    private static int memberCount = 1;
+    private int memberCount = 1;
 
     @Override
     public void addNewMember(DefaultMember newMember) {
         if (memberCount<=MAX_MEMBERS){
-            System.out.print("\nNumber of members registered in the system : " + memberCount);
             membersArray.add(newMember);
             memberCount++;
+            System.out.print("\nNumber of members registered in the system : " + (memberCount));
         } else {
             System.out.println("Member count exceeds. Please remove ");
         }
@@ -35,7 +35,6 @@ public class MyGymManager implements GymManager {
         if (membersArray.isEmpty()){
             System.out.println("Cannot remove a member without adding. Add a member first.");
         } else {
-
             for (DefaultMember member : membersArray) {
                 String tempMemNo = member.getMembershipNumber();
                 if (tempMemNo.equals(membershipID)) {
@@ -118,19 +117,17 @@ public class MyGymManager implements GymManager {
             FileWriter fw = null;
             PrintWriter pw = null;
 
-            String memberDetails = null;
+            String memberDetails = "";
 
             for (DefaultMember member : membersArray) {
-                memberDetails =
-                        "Membership Number : " + member.getMembershipNumber() + "\n" +
-                                "Member Name : " + member.getName() + "\n" +
-                                "Membership date : " + member.getStartMembershipDate() + "\n";
+                memberDetails += "Membership Number : " + member.getMembershipNumber() + "\n" + "Member Name : "
+                        + member.getName() + "\n" + "Membership date : " + member.getStartMembershipDate() + "\n";
                 if (member.getClass().getName().equals("Member.StudentMember")) {
                     StudentMember tempStudent = (StudentMember) member;
-                    memberDetails += "School name : " + tempStudent.getSchoolName() + "\n";
+                    memberDetails+="School name : " + tempStudent.getSchoolName() + "\n\n";
                 } else if (member.getClass().getName().equals("Member.Over60Member")) {
                     Over60Member tempOver60 = (Over60Member) member;
-                    memberDetails += "Member's age  : " + tempOver60.getAge() + "\n";
+                    memberDetails += "Member's age  : " + tempOver60.getAge() + "\n\n";
                 } else {
                     memberDetails += "\n";
                 }
@@ -163,5 +160,49 @@ public class MyGymManager implements GymManager {
     @Override
     public void clearMemberCount(){
         memberCount=1;
+    }
+
+    //using FileOutputStream, ObjectOutputStream to write current data to a temp file
+    @Override
+    public void writeSerializer(){
+        try{
+            FileOutputStream writeTemp = new FileOutputStream("Output/tempFiles/temp.ser");
+            ObjectOutputStream writeStream = new ObjectOutputStream(writeTemp);
+
+            writeStream.writeObject(membersArray);
+            writeStream.flush();
+            writeStream.close();
+
+        } catch (IOException e) {
+            System.out.println(
+                    "ERROR : MyGymManager - writeSerializer\n" +
+                            "temp.ser file not found."
+            );
+        }
+    }
+
+    //using FileOutputStream, ObjectOutputStream to read current data to a temp file
+    @Override
+    public void readSerializer() {
+        try {
+            FileInputStream readTemp = new FileInputStream("Output/tempFiles/temp.ser");
+            ObjectInputStream readStream = new ObjectInputStream(readTemp);
+
+            membersArray = (ArrayList<DefaultMember>) readStream.readObject();
+            readStream.close();
+        } catch (Exception e) {
+            System.out.println(
+                    "ERROR : MyGymManager - readSerializer\n" +
+                            "temp.ser file not found."
+            );
+        }
+    }
+
+    public int getMemberCount() {
+        return memberCount;
+    }
+
+    public void setMemberCount(int memberCount) {
+        this.memberCount = memberCount;
     }
 }

@@ -1,8 +1,9 @@
 package Member;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class DefaultMember implements Comparable<DefaultMember> {
+public class DefaultMember implements Comparable<DefaultMember>, Serializable {
     private final String membershipNumber;
     private final String name;
     private final LocalDate startMembershipDate;

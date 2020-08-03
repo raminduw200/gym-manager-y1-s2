@@ -12,5 +12,7 @@ public interface GymManager {
     public void sortMembers ();
     public void writeFile (String txtFile) throws IOException;
     public ArrayList<DefaultMember> getMembersArray();
+    public void writeSerializer ();
+    public void readSerializer ();
     public void clearMemberCount();
 }

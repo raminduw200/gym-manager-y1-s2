@@ -3,11 +3,8 @@ import Member.DefaultMember;
 import Member.Over60Member;
 import Member.StudentMember;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,9 +31,9 @@ public class TestMyGymManager {
 
     @Test
     public void testDefaultMember() {
-        assertSame(test().get(0),test().get(0));
-        assertSame(test().get(1),test().get(1));
-        assertSame(test().get(2),test().get(2));
+        assertSame(test().get(0),testAdmin.getMembersArray().get(0));
+        assertSame(test().get(1),testAdmin.getMembersArray().get(1));
+        assertSame(test().get(2),testAdmin.getMembersArray().get(2));
     }
 
     @After
@@ -59,8 +56,6 @@ public class TestMyGymManager {
     @Test
     public void testMemberCapacityAccuracy() {
         assertTrue(test().size() < 100);
-        testAdmin.getMembersArray().clear();
-        testAdmin.clearMemberCount();
     }
 
     @After
@@ -95,9 +90,9 @@ public class TestMyGymManager {
     public void testSorting() {
         Collections.sort(test());
         testAdmin.sortMembers();
-        assertSame(test().get(0),test().get(0));
-        assertSame(test().get(1),test().get(1));
-        assertSame(test().get(2),test().get(2));
+        assertSame(test().get(0),testAdmin.getMembersArray().get(0));
+        assertSame(test().get(1),testAdmin.getMembersArray().get(1));
+        assertSame(test().get(2),testAdmin.getMembersArray().get(2));
     }
 
     @After

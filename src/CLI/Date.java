@@ -11,9 +11,9 @@ public class Date {
     public static String dateValidate(){
         Scanner sc = new Scanner(System.in);
 
-        System.out.print("(YYYY MM DD) integers only: ");
         String dateTime = sc.nextLine().trim();
         //splits to yyyy,mm,dd
+        //Ex : 2020 02 02
         String[] dateTimeArr = dateTime.split(" ", 3);
 
         if (dateTime.equals("")){
@@ -23,7 +23,7 @@ public class Date {
         for (String i : dateTimeArr){
             try{
                 if (parseInt(i) < 0){
-                    System.out.println("\nCLI.Date can not be negative !\n");
+                    System.out.println("\nDate can not be negative !\n");
                     return "error";
                 }
             } catch (NumberFormatException e) {
@@ -54,5 +54,7 @@ public class Date {
             System.out.println("\nPlease enter date in right format. Ex : 2020 10 12\n");
             return "error";
         }
+        //2000 01 01 01
+        //2000 02
     }
 }

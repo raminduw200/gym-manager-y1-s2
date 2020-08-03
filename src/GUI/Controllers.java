@@ -4,21 +4,12 @@ import Member.DefaultMember;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import javafx.stage.Stage;
+
+import java.time.LocalDate;
 
 import static CLI.Main.getMembers;
 
 public class Controllers {
-
-    //Label declaration.
-    public static Label createLabel(String newLbName, double x, double y) {
-        Label lbName = new Label(newLbName);
-        lbName.setLayoutX(x);
-        lbName.setLayoutY(y);
-        return lbName;
-    }
 
     //Button declaration.
     public static Button createButton(String newBtnName, double width, double height, double x, double y) {
@@ -60,12 +51,12 @@ public class Controllers {
 
         TableColumn<DefaultMember, String> memberName = new TableColumn<>("Membership Name");
         memberName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        memberName.setPrefWidth(262);
+        memberName.setPrefWidth(350);
         table.getColumns().add(memberName);
 
-        TableColumn<DefaultMember, String> memberDate = new TableColumn<>("Membership Date");
+        TableColumn<DefaultMember, LocalDate> memberDate = new TableColumn<>("Membership Date");
         memberDate.setCellValueFactory(new PropertyValueFactory<>("startMembershipDate"));
-        memberDate.setPrefWidth(291);
+        memberDate.setPrefWidth(298);
         table.getColumns().add(memberDate);
 
         table.getItems().addAll(getMembers());

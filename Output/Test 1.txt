@@ -1,0 +1,23 @@
+Membership Number : 0002
+Member Name : Derk Lop
+Membership date : 2020-10-02
+School name : Deal College
+
+Membership Number : 0003
+Member Name : Hals KSapl
+Membership date : 2020-02-03
+
+Membership Number : 0004
+Member Name : Peals KSaol
+Membership date : 2020-03-30
+School name : Leapso College
+
+Membership Number : 0005
+Member Name : Peasl Skasf
+Membership date : 2020-12-03
+Member's age  : 69
+
+Membership Number : 0001
+Member Name : Ramindu Walgama
+Membership date : 2020-10-02
+
